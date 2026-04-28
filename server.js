@@ -1,54 +1,51 @@
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// fake database (temporary)
-let users = [];
+const PORT = process.env.PORT || 10000;
+
+// Load users
+const loadUsers = () => {
+  return JSON.parse(fs.readFileSync("users.json"));
+};
+
+// Save users
+const saveUsers = (users) => {
+  fs.writeFileSync("users.json", JSON.stringify(users, null, 2));
+};
 
 // Home
 app.get("/", (req, res) => {
   res.send("BDGamez Server Running 🚀");
 });
 
-// Games API
-app.get("/games", (req, res) => {
-  res.json([
-    { name: "Free Fire" },
-    { name: "PUBG Mobile" },
-    { name: "COD Mobile" }
-  ]);
-});
-
-// Register API
+// Register
 app.post("/register", (req, res) => {
   const { username, password } = req.body;
+  let users = loadUsers();
 
-  const userExists = users.find(u => u.username === username);
-  if (userExists) {
-    return res.json({ message: "User already exists" });
+  if (users.find(u => u.username === username)) {
+    return res.json({ success:false, msg:"User exists" });
   }
 
-  users.push({ username, password });
-  res.json({ message: "Registration successful" });
+  users.push({ username, password, coins:0 });
+  saveUsers(users);
+  res.json({ success:true });
 });
 
-// Login API
+// Login
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
+  let users = loadUsers();
 
-  const user = users.find(
-    u => u.username === username && u.password === password
-  );
+  const user = users.find(u => u.username === username && u.password === password);
+  if (!user) return res.json({ success:false });
 
-  if (!user) {
-    return res.json({ message: "Invalid credentials" });
-  }
-
-  res.json({ message: "Login successful" });
+  res.json({ success:true, coins:user.coins });
 });
 
-const PORT = process.env.PORT || 10000;
 app.listen(PORT);
