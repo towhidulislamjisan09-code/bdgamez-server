@@ -1,22 +1,50 @@
-/* Get Coins */
-app.get("/coins/:username", (req, res) => {
-  let users = loadUsers();
-  const user = users.find(u => u.username === req.params.username);
-  if (!user) return res.json({ success:false });
+const express = require("express");
+const app = express();
 
-  res.json({ success:true, coins:user.coins });
+app.use(express.json());
+
+app.get("/", (req,res)=>{
+    res.send("TSI Play BDGamez Server Running 🚀");
 });
 
-/* Add Coins (Admin use) */
-app.post("/addcoins", (req, res) => {
-  const { username, amount } = req.body;
-  let users = loadUsers();
-
-  const user = users.find(u => u.username === username);
-  if (!user) return res.json({ success:false });
-
-  user.coins += Number(amount);
-  saveUsers(users);
-
-  res.json({ success:true, coins:user.coins });
+// REGISTER
+app.post("/register",(req,res)=>{
+    res.json({
+        status:true,
+        message:"User registered successfully"
+    });
 });
+
+// LOGIN
+app.post("/login",(req,res)=>{
+    res.json({
+        status:true,
+        message:"Login success"
+    });
+});
+
+// WALLET
+app.get("/wallet",(req,res)=>{
+    res.json({
+        balance:0
+    });
+});
+
+// DEPOSIT
+app.post("/deposit",(req,res)=>{
+    res.json({
+        status:true,
+        message:"Deposit added"
+    });
+});
+
+// WITHDRAW
+app.post("/withdraw",(req,res)=>{
+    res.json({
+        status:true,
+        message:"Withdraw request submitted"
+    });
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, ()=> console.log("Server Started"));
